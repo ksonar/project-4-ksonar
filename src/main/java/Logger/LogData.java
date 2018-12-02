@@ -9,22 +9,22 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 /*
- * Create a single instance of the logger that needs to be used across all Java classes to create a single log file for the application
+ * Create a single instance of the logger to be used across all Java classes of a server.
  * @author ksonar
  */
 public class LogData {
 	public static Logger log = null;
 	
-	public static void createLogger() {
+	public static void createLogger(String fName) {
 		try {
-			buildLogger();
+			buildLogger(fName);
 		} catch (SecurityException | IOException e) {
 			System.out.println("UNABLE TO CREATE LOGGER");
 		}
 	}
 	
-	private static void buildLogger() throws SecurityException, IOException {
-		FileHandler file = new FileHandler("log.log");
+	private static void buildLogger(String fName) throws SecurityException, IOException {
+		FileHandler file = new FileHandler(fName+".log");
 		file.setFormatter(new SimpleFormatter());
 		Handler console = new ConsoleHandler();
 		console.setLevel(Level.WARNING);

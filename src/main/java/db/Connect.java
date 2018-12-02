@@ -1,28 +1,34 @@
 package db;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/*
+ * Create a single instance of the DB connection, read credentials from a config file
+ * @author ksonar
+ */
 public class Connect {
-	private  String username  = "user29";
-	private  String password  = "user29";
-	private  String db  = "user29";
-	public static Connection conn;
+	private String cFile = "config.json";
+	private  String username;
+	private  String password;
+	private  String db;
+	private static Connection conn;
 	private static Connect con;
 	private Connect() {
+		Config.readConfig(cFile);
+		this.username = Config.configData.getUserName();
+		this.password = Config.configData.getPassword();
+		this.db = Config.configData.getDB();
 	}
-	
+	//singleton
 	public static Connect getInstance() {
 		if (con == null) {
 			con = new Connect();
-			conn = con.getConnection();
 		}
 		return con;
 	}
 	
-	
+	//setup the connection to mysql
 	public Connection getConnection() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -31,19 +37,15 @@ public class Connect {
 			System.err.println("Can't find driver");
 			System.exit(1);
 		}
-		// format "jdbc:mysql://[hostname][:port]/[dbname]"
-		//note: if connecting through an ssh tunnel make sure to use 127.0.0.1 and
-		//also to that the ports are set up correctly
+
 		String urlString ="jdbc:mysql://127.0.0.1:3306/"+db;
-		//String urlString = "jdbc:mysql://sql.cs.usfca.edu/"+db;
-		//Must set time zone explicitly in newer versions of mySQL.
+
 		String timeZoneSettings = "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
 		try {
 			conn = DriverManager.getConnection(urlString+timeZoneSettings,username,password);
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return conn;
