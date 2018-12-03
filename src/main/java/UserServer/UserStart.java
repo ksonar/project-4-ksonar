@@ -8,7 +8,7 @@ import Logger.LogData;
  * @author ksonar
  */
 public class UserStart {
-	private static int port = 9000;
+	public static int port = 9000;
 	private static String serverName = "users";
 	
 	public static void main(String[] args) throws Exception {

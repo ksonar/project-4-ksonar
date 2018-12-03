@@ -16,6 +16,7 @@ import db.DBManager;
 public class EventList extends HttpServlet{
 	private ArrayList<JSONObject> obj = new ArrayList<>();
 	private String table = "events";
+	private DBManager db = DBManager.getInstance();
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LogData.log.info("GET: " + request.getPathInfo());
@@ -23,14 +24,17 @@ public class EventList extends HttpServlet{
 		PrintWriter out = response.getWriter();
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_OK);
-		DBManager db = DBManager.getInstance();
 		
 		obj = db.getSelectAllResult(table);
-		System.out.println(obj.toString());
-		if((obj.size() == 1) && (obj.get(0).containsKey("error"))) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		if((obj.size() == 1)) {
+			if (obj.get(0).containsKey("error")) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
+			out.println(obj.get(0).toString());
+		}
+		else {
+			out.println(obj.toString());
 		}
 		LogData.log.info("RESPONSE STATUS : " + response.getStatus());
-		out.println(obj.toString());
 	}
 }

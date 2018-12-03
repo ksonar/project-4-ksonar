@@ -8,7 +8,7 @@ import Logger.LogData;
  * @author ksonar
  */
 public class EventStart {
-	private static int port = 8000;
+	public static int port = 8000;
 	private static String serverName = "events";
 	public static void main(String[] args) throws Exception {
 		LogData.createLogger(serverName);
@@ -20,6 +20,7 @@ public class EventStart {
 		
 		handler.addServletWithMapping(EventID.class, "/*");
 		handler.addServletWithMapping(EventList.class, "/list");
+		handler.addServletWithMapping(CreateEvent.class, "/create");
 		server.start();
 		LogData.log.info("Server started");
 		//LogData.log.info("MAPPING DONE, SERVER STARTED");
