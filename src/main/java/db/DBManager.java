@@ -1,5 +1,5 @@
 package db;
-
+import Errors.Error;
 import java.sql.Connection;
 import org.json.simple.JSONObject;
 import Logger.LogData;
@@ -36,6 +36,66 @@ public class DBManager {
 		return output;
 	}
 	/*
+	 * Update Ticekts table
+	 */
+	public boolean updateTicketsTable(int param1, int param2, String col1, int val1) {
+		boolean status = false;
+		String sqlStmt = String.format("UPDATE tickets SET %s = %d where userID = %s and eventID = %d", col1,val1,param1, param2);
+		LogData.log.info(sqlStmt);
+		try {
+			PreparedStatement stmt = conn.prepareStatement(sqlStmt);
+			int result = stmt.executeUpdate();
+			if(result > 0) { status = true; }
+		} catch (SQLException e) {
+
+		}
+		return status;
+	}
+	/*
+	 * Update events table
+	 */
+	public boolean updateEventsTable(int param, String col1, int val1, String col2, int val2) {
+		boolean status = false;
+		String sqlStmt = String.format("UPDATE events SET %s = %d, %s = %d where eventID = %d", col1,val1,col2,val2,param);
+		LogData.log.info(sqlStmt);
+		try {
+			PreparedStatement stmt = conn.prepareStatement(sqlStmt);
+			int result = stmt.executeUpdate();
+			if(result > 0) { status = true; }
+		} catch (SQLException e) {
+
+		}
+		return status;
+	}
+	
+	/*
+	 * Insert a user row data after validation
+	 * @params table, userName
+	 */
+	public boolean insertTicketRowData(String table, int userID, int eventID, int tickets) {
+		String sqlStmt = "INSERT INTO " + table + " (userID, eventID, tickets) values (?,?,?)";
+		boolean flag = false;
+		try {
+			PreparedStatement stmt = conn.prepareStatement(sqlStmt);
+			stmt.setInt(1, userID);
+			stmt.setInt(2, eventID);
+			stmt.setInt(3, tickets);
+			LogData.log.info(stmt.toString());
+			int result = stmt.executeUpdate();
+			if(result > 0) {
+				LogData.log.info("SUCCESSFUL INSERT");
+				flag = true;
+			}
+
+		} catch (SQLException e) {
+			String msg = Error.INSERT + "[userid, eventid, tickets]";
+			LogData.log.warning(msg);
+			
+		}
+		return flag;
+	}
+	
+	/*
 	 * Insert a user row data after validation
 	 * @params table, userName
 	 */
@@ -56,13 +116,15 @@ public class DBManager {
 				}
 
 		} catch (SQLException e) {
-			String msg = "Could not insert :" + userName;
+			String msg = Error.INSERT + userName;
 			LogData.log.warning(msg);
 			output = buildError(msg);
 		}
 		return output;
 	}
-	
+	/*
+	 * Insert row data into events
+	 */
 	public ArrayList<JSONObject> insertEventRowData(String table, String eventName, int userID, int avail, int purchased) {
 		String sqlStmt = "INSERT INTO " + table + " (eventName, userID, avail, purchased) values (?,?,?,?)";
 		ArrayList<JSONObject> output = new ArrayList<>();
@@ -111,6 +173,13 @@ public class DBManager {
 		output = getSelectParamResult(table, query, param, string);
 		LogData.log.info("REMOVING COLS : " + delCols.toString());
 		
+		output = delColumns(output, delCols);
+		return output;
+	}
+	/*
+	 * Remove specific fields
+	 */
+	public ArrayList<JSONObject> delColumns(ArrayList<JSONObject> output, ArrayList<String> delCols) {
 		for(JSONObject data : output) {
 			for(String delCol : delCols) {
 				if(data.containsKey(delCol)) {
@@ -119,6 +188,28 @@ public class DBManager {
 			}
 		}
 		return output;
+	}
+	/*
+	 * Get data with n number of clauses with AND in between
+	 */
+	public ArrayList<JSONObject> getCertaindData(String table, String col, ArrayList<String> queries, ArrayList<String> params, ArrayList<String> types) {
+		String sqlStmt = "SELECT " + col + " FROM " + table + " WHERE ";
+		ArrayList<JSONObject> data = new ArrayList<JSONObject>();
+		for(int i = 0; i < queries.size(); i++) {
+			if(i > 0 && i <= queries.size() -1) { sqlStmt += " AND "; }
+			if(types.get(i).equals("str")) {
+				sqlStmt += queries.get(i) + "=\"" + params.get(i) + "\"";
+			}
+			else {
+				sqlStmt += queries.get(i) + "=" + Integer.parseInt(params.get(i));
+			}
+		}
+		System.out.println(sqlStmt);
+		LogData.log.info(sqlStmt);
+		data = execute(sqlStmt,table);
+		
+		return data;
+		
 	}
 
 	/*
@@ -173,6 +264,9 @@ public class DBManager {
 				else if(table.equals("events") && sql.startsWith("SELECT")) {
 					execData = getEventsRowData(result);
 				}
+				else if(table.equals("tickets") && sql.startsWith("SELECT") ) {
+					execData = getTicketsRowData(result);
+				}
 				LogData.log.info(execData.size() + " row(s) returned");
 			}
 
@@ -209,6 +303,19 @@ public class DBManager {
 			temp.put("userID", result.getString("userID"));
 			temp.put("avail", result.getInt("avail"));
 			temp.put("purchased", result.getInt("purchased"));
+			output.add(temp);
+		} while(result.next());
+		return output;
+	}
+	
+	/*
+	 * Pull out data from tickets db
+	 */
+	public ArrayList<JSONObject> getTicketsRowData(ResultSet result) throws SQLException {
+		ArrayList<JSONObject> output = new ArrayList<>();
+		do {
+			JSONObject temp = new JSONObject();
+			temp.put("eventID", result.getInt("eventID"));
 			output.add(temp);
 		} while(result.next());
 		return output;

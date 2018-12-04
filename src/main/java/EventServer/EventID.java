@@ -14,39 +14,41 @@ import org.json.simple.JSONObject;
 
 //import org.json.JSONObject;
 import Logger.LogData;
-
+import ReadData.Read;
 import db.DBManager;
 /*
  * Get information of a particular eventID
  * @author ksonar
  */
 public class EventID extends HttpServlet{
-	private ArrayList<JSONObject> obj = new ArrayList<>();
+	private ArrayList<JSONObject> processed = new ArrayList<>();
 	private String table = "events";
 	private String query = "eventID";
 	private DBManager db = DBManager.getInstance();
+	private JSONObject json = new JSONObject();
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LogData.log.info("GET: " + request.getPathInfo());
 		PrintWriter out = response.getWriter();
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_OK);
-
+		json = Read.readAndBuildJSON(request.getReader());
+		
 		if(request.getPathInfo().split("/").length > 1) {
 			String eventID = request.getPathInfo().split("/")[1];
 
-			obj = db.getSelectParamResult(table, query, eventID, false);
+			processed = db.getSelectParamResult(table, query, eventID, false);
 		}
-		else { String msg = "Invalid input(empty)"; obj = db.buildError(msg); LogData.log.warning(msg);}
+		else { String msg = Errors.Error.EMPTY; processed = db.buildError(msg); LogData.log.warning(msg);}
 
-		if((obj.size() == 1)) {
-			if (obj.get(0).containsKey("error")) {
+		if((processed.size() == 1)) {
+			if (processed.get(0).containsKey("error")) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
-			out.println(obj.get(0).toString());
+			out.println(processed.get(0).toString());
 		}
 		else {
-			out.println(obj.toString());
+			out.println(processed.toString());
 		}
 
 		LogData.log.info("RESPONSE STATUS : " + response.getStatus());

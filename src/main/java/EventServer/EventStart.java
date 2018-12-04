@@ -21,9 +21,9 @@ public class EventStart {
 		handler.addServletWithMapping(EventID.class, "/*");
 		handler.addServletWithMapping(EventList.class, "/list");
 		handler.addServletWithMapping(CreateEvent.class, "/create");
+		handler.addServletWithMapping(PurchaseTickets.class, "/purchase/*");
 		server.start();
 		LogData.log.info("Server started");
-		//LogData.log.info("MAPPING DONE, SERVER STARTED");
 		server.join();
 		
 	}

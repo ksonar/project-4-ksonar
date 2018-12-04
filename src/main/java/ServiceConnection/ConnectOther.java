@@ -39,6 +39,7 @@ public class ConnectOther {
 	//GET
 	public ArrayList<JSONObject> methodGET() {
 		String link = "http://localhost:" + port + path;
+		LogData.log.info("LINK : " + link);
 		DBManager db = DBManager.getInstance();
 		ArrayList<JSONObject> data = new ArrayList<>();
 		try {
