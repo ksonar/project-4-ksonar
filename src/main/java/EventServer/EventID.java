@@ -36,7 +36,6 @@ public class EventID extends HttpServlet{
 		
 		if(request.getPathInfo().split("/").length > 1) {
 			String eventID = request.getPathInfo().split("/")[1];
-
 			processed = db.getSelectParamResult(table, query, eventID, false);
 		}
 		else { String msg = Errors.Error.EMPTY; processed = db.buildError(msg); LogData.log.warning(msg);}

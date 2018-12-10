@@ -1,6 +1,7 @@
 package UserServer;
 
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import Logger.LogData;
 /*
@@ -16,11 +17,12 @@ public class UserStart {
 		Server server = new Server(port);
 		LogData.log.info(serverName + " server started on port " + port);
 		
-		ServletHandler handler = new ServletHandler();
+		ServletContextHandler handler = new ServletContextHandler();
 		server.setHandler(handler);
 		
-		handler.addServletWithMapping(UserID.class, "/*");
-		handler.addServletWithMapping(CreateUser.class, "/create");
+		handler.addServlet(UserID.class, "/*");
+		handler.addServlet(CreateUser.class, "/create");
+		handler.addServlet(AddTickets.class, "/tickets/add");
 
 		server.start();
 		LogData.log.info("Server started");

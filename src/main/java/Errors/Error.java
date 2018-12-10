@@ -12,5 +12,7 @@ public class Error {
 	public static String CAST = "Cast exception : ";
 	public static String EMPTY_PURCHASE = "One of [userid, eventid, tickets] not present or empty";
 	public static String NOT_MATCHING = "One of [userid, eventid, tickets] not present or empty";
+	public static String TICKETS = "Could not update tickets table";
+	public static String PATH = "Invalid path, please check again";
 
 }

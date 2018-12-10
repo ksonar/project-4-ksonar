@@ -33,6 +33,7 @@ public class PurchaseTickets extends HttpServlet{
 	private DBManager db = DBManager.getInstance();
 	private String table = "events";
 	private String query = "eventID";
+	private ConnectOther service;
 	
 	private int port = UserStart.port;
 	private String path = "/";
@@ -44,27 +45,22 @@ public class PurchaseTickets extends HttpServlet{
 		response.setStatus(HttpServletResponse.SC_OK);
 		PrintWriter out = response.getWriter();
 		json = Read.readAndBuildJSON(request.getReader());
+
 		setParams(request);
 		LogData.log.info("POST: " + request.getPathInfo() + " userid:" + userid + " eventID:" + eventid + " tickets:" + tickets);
-		
 		if(validateParams()) {
-			ConnectOther service = new ConnectOther(port,path+userid,method);
-			check = service.methodGET();
+			service = new ConnectOther(port,path+userid,"GET");
+			check = service.send();
 			if(check.get(0).containsKey("error")) {
 				processed = db.buildError(Error.UID+userid);
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-
 			}
 			else {
-				avail = (int) processed.get(0).get("avail");
-				purchased = (int) processed.get(0).get("purchased");
 				if(tryPurchasing()) {
 					LogData.log.info("Events table updated");
-					boolean flag = db.insertTicketRowData("tickets", userID, eventID, purchase);	
-					if(flag) {
-						buildSuccess();
-						LogData.log.info("Tickets table updated\nTickets purchased!!!");
-					}
+					setOther();
+					processed = service.send();
+
 				}
 				else {
 					processed = db.buildError(Error.PURCHASE+eventid);
@@ -78,14 +74,26 @@ public class PurchaseTickets extends HttpServlet{
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			out.println(processed.get(0).toString());
 		}
-		
+	}
+	/*
+	 * Set connection to connect to user service
+	 */
+	public void setOther() {
+		method = "POST";
+		JSONObject body = new JSONObject();
+		body.put("eventid", eventID);
+		body.put("tickets", tickets);
+		String newPath = path + userid + "/tickets/add";
+		service = new ConnectOther(port, newPath, method, body.toJSONString());
 	}
 	
 	/*
 	 * Check if tickets can be purchased for specific eventID
 	 */
-	public boolean tryPurchasing() {
+	public synchronized boolean tryPurchasing() {
 		boolean flag = false;
+		avail = (int) processed.get(0).get("avail");
+		purchased = (int) processed.get(0).get("purchased");
 		if (purchase <= avail && purchase > 0) {
 			LogData.log.info(String.format("Can purchase tickets avail = %d, purchasing = %d\nCurrent : %s",avail,purchase,processed.get(0).toString()));
 			int newAvail = avail - purchase;
@@ -130,7 +138,6 @@ public class PurchaseTickets extends HttpServlet{
 			processed = db.getSelectParamResult(table, query, eventid, false);
 			if(processed.size() == 1 && processed.get(0).containsKey("error")) {
 				flags = false;
-				System.out.println("FALSE");
 				LogData.log.warning(processed.get(0).get("error").toString());
 			}
 			else { 
@@ -144,15 +151,16 @@ public class PurchaseTickets extends HttpServlet{
 	 */
 	public boolean checkInput()  {
 		boolean flag = true;
-		if(pathEventID == null || !pathEventID.equals(eventid)) {
+		if(userid == null || eventid == null || tickets == null || userid.equals("") || eventid.equals("") || tickets.equals("")) {
+			processed = db.buildError(Error.NOT_MATCHING);
+			LogData.log.warning(Error.NOT_MATCHING);
+			flag = false;
+		}
+
+		else if(pathEventID == null || !pathEventID.equals(eventid)) {
 			String msg = "One of eventid in request path and body do not match or is null";
 			processed = db.buildError(msg);
 			LogData.log.warning(msg);
-			flag = false;
-		}
-		else if(userid == null || eventid == null || tickets == null || userid.equals("") || eventid.equals("") || tickets.equals("")) {
-			processed = db.buildError(Error.NOT_MATCHING);
-			LogData.log.warning(Error.NOT_MATCHING);
 			flag = false;
 		}
 		return flag;
@@ -178,18 +186,12 @@ public class PurchaseTickets extends HttpServlet{
 		return flag;
 	}
 	/*
-	 * Build userid not found error
+	 * Build success
 	 */
-	public void buildError(String error, String param) {
-		String msg = error + param;
-		processed = db.buildError(msg);
-		LogData.log.warning(msg);
-	}
-	
 	public void buildSuccess() {
 		processed.clear();
 		JSONObject success = new JSONObject();
-		success.put("sucess", String.format("%d tickets bought by userid %d for eventid %d",purchase,userID,eventID));
+		success.put("success", String.format("%d tickets bought by userid %d for eventid %d",purchase,userID,eventID));
 		processed.add(success);
 	}
 

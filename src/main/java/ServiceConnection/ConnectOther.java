@@ -36,31 +36,31 @@ public class ConnectOther {
 		this.method = method;
 		this.body = body;
 	}
-	//GET
-	public ArrayList<JSONObject> methodGET() {
+	//Send request from one service to another
+	public ArrayList<JSONObject> send() {
 		String link = "http://localhost:" + port + path;
 		LogData.log.info("LINK : " + link);
 		DBManager db = DBManager.getInstance();
 		ArrayList<JSONObject> data = new ArrayList<>();
 		try {
 			con = setup(link);
-			if(con.getResponseCode() == 200) {
-				data = getData();
-			}
-			else {
+			data = getData();
+			if(con.getResponseCode() != 200) {
 				String msg = "Got back 400 response";
-				data.addAll(db.buildError(msg));
 				LogData.log.warning(msg);
 			}
 
 		} catch (MalformedURLException e) {
 			data.addAll(db.buildError(exception));
+			System.out.println(1);
 			LogData.log.warning(exception);
 		} catch (IOException e) {
 			data.addAll(db.buildError(exception));
+			System.out.println(2);
 			LogData.log.warning(exception);
 		} catch (ParseException e) {
 			data.addAll(db.buildError(exception));
+			System.out.println(3);
 			LogData.log.warning(exception);
 		}
 		return data;
@@ -76,25 +76,48 @@ public class ConnectOther {
 		con.setRequestMethod(method);
 		con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 		con.setRequestProperty("Accept", "application/json");
+		if(method.equals("POST")) {
+			con.setDoOutput(true);
+			con.getOutputStream().write(body.getBytes());
+		}
 		return con;
 	}
 	/*
 	 * Read data from input stream of HttpURLConnection
 	 */
 	public ArrayList<JSONObject> getData() throws IOException, ParseException {
+		BufferedReader in;
 		ArrayList<JSONObject> data = new ArrayList<>();
-		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+		if(con.getResponseCode() == 400) {
+			in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+		} else {
+			in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+		}
+		String message = read(in);
+	
+		JSONParser parser = new JSONParser();
+		if(message.toString().startsWith("[")) {
+			String[] split = message.toString().replace("[", "").replace("]", "").split(", ");
+			for(String s : split) {
+				data.add((JSONObject) parser .parse(s));
+			}
+		}
+		else {
+			data.add((JSONObject) parser.parse(message.toString()));
+		}
+
+		return data;
+	}
+	
+	public String read(BufferedReader in) throws IOException {
 		String inputLine;
 		StringBuffer message = new StringBuffer();
-
+		JSONParser parser = new JSONParser(); 
 		while ((inputLine = in.readLine()) != null) {
 			message.append(inputLine);
 		}
 		in.close();
 		
-		JSONParser parser = new JSONParser(); 
-		data.add((JSONObject) parser.parse(message.toString()));	
-
-		return data;
+		return message.toString();
 	}
 }

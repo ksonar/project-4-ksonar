@@ -35,6 +35,14 @@ public class DBManager {
 		output.add(obj);
 		return output;
 	}
+	public ArrayList<JSONObject> buildSuccess(String msg) {
+		ArrayList<JSONObject> output = new ArrayList<>();
+		obj.clear();
+		obj.put("sucess", msg);
+		output.add(obj);
+		return output;
+	}
+
 	/*
 	 * Update Ticekts table
 	 */
@@ -204,7 +212,6 @@ public class DBManager {
 				sqlStmt += queries.get(i) + "=" + Integer.parseInt(params.get(i));
 			}
 		}
-		System.out.println(sqlStmt);
 		LogData.log.info(sqlStmt);
 		data = execute(sqlStmt,table);
 		
@@ -285,8 +292,8 @@ public class DBManager {
 		ArrayList<JSONObject> output = new ArrayList<>();
 		do{
 			JSONObject temp = new JSONObject();
-			temp.put("userName", result.getString("userName"));
-			temp.put("userID", result.getString("userID"));
+			temp.put("username", result.getString("username"));
+			temp.put("userID", result.getInt("userid"));
 			output.add(temp);
 		} while(result.next());
 		return output;
@@ -298,9 +305,9 @@ public class DBManager {
 		ArrayList<JSONObject> output = new ArrayList<>();
 		do {
 			JSONObject temp = new JSONObject();
-			temp.put("eventID", result.getInt("eventID"));
-			temp.put("eventName", result.getString("eventName"));
-			temp.put("userID", result.getString("userID"));
+			temp.put("eventid", result.getInt("eventID"));
+			temp.put("eventname", result.getString("eventName"));
+			temp.put("userid", result.getInt("userID"));
 			temp.put("avail", result.getInt("avail"));
 			temp.put("purchased", result.getInt("purchased"));
 			output.add(temp);
@@ -315,7 +322,7 @@ public class DBManager {
 		ArrayList<JSONObject> output = new ArrayList<>();
 		do {
 			JSONObject temp = new JSONObject();
-			temp.put("eventID", result.getInt("eventID"));
+			temp.put("eventid", result.getInt("eventID"));
 			output.add(temp);
 		} while(result.next());
 		return output;

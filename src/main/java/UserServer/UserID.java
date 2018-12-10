@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,12 +31,13 @@ public class UserID extends HttpServlet{
 	private ArrayList<String> types = new ArrayList<>();
 	private JSONObject json = new JSONObject();
 	
+	private String TICKETS = "/tickets/add";
+	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LogData.log.info("GET: " + request.getPathInfo());
 		PrintWriter out = response.getWriter();
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_OK);
-		json = Read.readAndBuildJSON(request.getReader());
 		
 		if(request.getPathInfo().split("/").length > 1) {
 			userID = request.getPathInfo().split("/")[1];
@@ -58,6 +60,23 @@ public class UserID extends HttpServlet{
 		}
 		LogData.log.info("RESPONSE STATUS : " + response.getStatus());
 	}
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		LogData.log.info("POST: " + request.getPathInfo());
+		PrintWriter out = response.getWriter();
+		response.setContentType("application/json");
+		response.setStatus(HttpServletResponse.SC_OK);
+		String[] split = request.getPathInfo().split("/");
+		if(split.length == 4) {
+			try {
+				request.setAttribute("userid", Integer.parseInt(split[1]));
+				request.getRequestDispatcher(TICKETS).forward(request, response);
+			} catch (ServletException e) {
+				LogData.log.warning("Could not forward");
+			}
+		}
+	}
+	
 	
 	/*
 	 * Get all eventIDs for particular userID

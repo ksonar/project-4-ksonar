@@ -39,7 +39,7 @@ public class CreateEvent extends HttpServlet {
 		
 		if(validateParams()) {
 			ConnectOther service = new ConnectOther(port,path+userid,method);
-			processed = service.methodGET();
+			processed = service.send();
 			if(processed.get(0).containsKey("error")) {
 				buildError();
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -66,7 +66,6 @@ public class CreateEvent extends HttpServlet {
 			tickets = json.get("numtickets").toString();
 		}
 		catch(NullPointerException i) {
-			
 		}
 
 	}

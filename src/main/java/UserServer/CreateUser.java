@@ -22,37 +22,39 @@ public class CreateUser extends HttpServlet{
 	private String table = "users";
 	private DBManager db = DBManager.getInstance();
 	private JSONObject json = new JSONObject();
+	private String username;
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		PrintWriter out = response.getWriter();
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_OK);
+		json.clear();
 		json = Read.readAndBuildJSON(request.getReader());
-		String username;
 
-		if(json.get(getUser) == null || json.get(getUser).toString().equals("")) {
-			String msg = "Invalid input (empty)";
-			processed = db.buildError(msg);
-			LogData.log.warning(msg);
-
-		}
-		else { 			
+		if(checkInput()) { 			
 			username = json.get(getUser).toString();
 			processed = db.insertUserRowData(table, username);
 			LogData.log.info("POST: " + request.getPathInfo() + " " + username);
 		}
 		
-		if((processed.size() == 1)) {
-			if (processed.get(0).containsKey("error")) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			}
-			out.println(processed.get(0).toString());
+		if((processed.size() == 1 && processed.get(0).containsKey("error"))) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
-		else {
-			out.println(processed.toString());
-		}
-
+		out.println(processed.get(0).toString());
 		LogData.log.info("RESPONSE STATUS : " + response.getStatus());
+	}
+	/*
+	 * Check if input is null/empty
+	 */
+	public boolean checkInput() {
+		boolean flag = true;
+		if(json.get(getUser) == null || json.get(getUser).toString().equals("")) {
+			String msg = "Invalid input (empty)";
+			processed = db.buildError(msg);
+			LogData.log.warning(msg);
+			flag = false;
+		}
+		return flag;
 	}
 
 }
