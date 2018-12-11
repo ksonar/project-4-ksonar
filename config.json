@@ -1,5 +1,12 @@
 {
 	'username' : 'user29',
 	'password' : 'user29',
-	'db' : 'user29'
+	'db' : 'user29',
+	'dbHostname' : 'jdbc:mysql://sql.cs.usfca.edu/',
+	'frontPath' : 'http://mcvm085.cs.usfca.edu',
+	'eventPath' : 'http://mcvm086.cs.usfca.edu',
+	'userPath' : 'http://mcvm087.cs.usfca.edu',
+	'frontPort' : 7070,
+	'eventPort' : 8000,
+	'userPort' : 9000
 }
