@@ -38,11 +38,11 @@ public class EventID extends HttpServlet{
 
 		if(request.getPathInfo().split("/").length > 1) {
 			eventID = request.getPathInfo().split("/")[1];
+			ConnectOther service = new ConnectOther(port, path+eventID, method);
+			processed = service.send();
 		}
 		else { String msg = Errors.Error.EMPTY; processed = db.buildError(msg); LogData.log.warning(msg);}
 		
-		ConnectOther service = new ConnectOther(port, path+eventID, method);
-		processed = service.send();
 		if((processed.size() == 1) && processed.get(0).containsKey("error")) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -54,13 +54,11 @@ public class EventID extends HttpServlet{
 		PrintWriter out = response.getWriter();
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_OK);
-		System.out.println(request.getPathInfo());
 		String[] split = request.getPathInfo().split("/");
 		if(split.length == 4 && split[2].equals("purchase")) {
 
 			eventID = split[1];
 			userID = split[3];
-			System.out.println(eventID + userID);
 			try {
 				request.setAttribute("eventid", eventID);
 				request.setAttribute("userid", userID);

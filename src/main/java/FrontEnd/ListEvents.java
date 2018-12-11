@@ -13,6 +13,7 @@ import org.json.simple.JSONObject;
 import EventServer.EventStart;
 import Logger.LogData;
 import ServiceConnection.ConnectOther;
+import db.DBManager;
 /*
  * Front end API to list all events from database
  * @author ksonar
@@ -22,6 +23,7 @@ public class ListEvents extends HttpServlet{
 	private int port = EventStart.port;
 	private String path = "/list";
 	private String method = "GET";
+	private DBManager db = DBManager.getInstance();
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LogData.log.info("GET: " + request.getPathInfo());

@@ -41,15 +41,12 @@ public class AddTickets extends HttpServlet{
 		processed = db.getCertaindData(table, col, queries, params, types);
 		boolean flag;
 		if(processed.get(0).containsKey("error")) {
-			System.out.println("EMPTY, adding new row");
 			flag = db.insertTicketRowData(table, userID, eventID, purchased);
 		}
 		else {
-			System.out.println("UDATING");
 			flag = db.updateTicketsTable(userID, eventID, table, purchased, "+");
 		}
 		
-
 		if(flag) {
 			String msg = String.format("%d tickets bought by userid %d for eventid %d",purchased,userID,eventID);
 			processed = db.buildSuccess(msg);

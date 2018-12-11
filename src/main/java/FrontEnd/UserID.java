@@ -65,12 +65,10 @@ public class UserID extends HttpServlet{
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_OK);
 		String[] split = request.getPathInfo().split("/");
-		System.out.println(request.getPathInfo());
-		System.out.println(split[1]);
-		System.out.println("/"+split[1]+TRANSFER);
+
 		if(split.length == 4) {
 			try {
-					request.setAttribute("userid", Integer.parseInt(split[1]));
+					request.setAttribute("userid", split[1]);
 					request.getRequestDispatcher(TRANSFER).forward(request, response);
 			} catch (ServletException e) {
 				LogData.log.warning("Could not forward");
@@ -86,14 +84,14 @@ public class UserID extends HttpServlet{
 		JSONParser parser = new JSONParser(); 
 		ArrayList<JSONObject> data = new ArrayList<>();
 		String ticketInfo = processed.get(0).get("tickets").toString();
-		System.out.println(ticketInfo);
+
 		String[] split = ticketInfo.toString().replace("[", "").replace("]", "").split(",");
 		JSONObject event = new JSONObject();
 		for(String s : split) {
 			
 			try {
 				event = (JSONObject) parser.parse(s);
-				System.out.println(event.toJSONString());
+
 				service = new ConnectOther(portE, pathE+event.get("eventid").toString(),method);
 				data.add(service.send().get(0));
 			} catch (ParseException e) {

@@ -44,7 +44,6 @@ public class Transfer extends HttpServlet{
 		response.setStatus(HttpServletResponse.SC_OK);
 		PrintWriter out = response.getWriter();
 		json = Read.readAndBuildJSON(request.getReader());
-		System.out.println(json.toJSONString());
 		if(setParams(request)) {
 			LogData.log.info("POST: " + request.getPathInfo() + " userid:" + userID + " eventID:" + eventID + " tickets:" + tickets + " targetuser:" + targetUserID);
 			if(!validateParams(response)) {
@@ -88,15 +87,12 @@ public class Transfer extends HttpServlet{
 				processed = db.getCertaindData("tickets", col, queries, params, types);
 				boolean flag;
 				if(processed.get(0).containsKey("error")) {
-					System.out.println("EMPTY, adding new row");
 					flag = db.insertTicketRowData("tickets", targetUserID, eventID, tickets);
 				}
 				else {
-					System.out.println("UPDATING");
 					flag = db.updateTicketsTable(targetUserID, eventID, "tickets", tickets, "+");
 				}
 				if(flag) { 
-					System.out.println("TRANSFER SUCCESSFUL");
 					String msg = String.format("%d tickets transferred to userid %d from userid %s for eventid %d",tickets,targetUserID,userID,eventID);
 					processed = db.buildSuccess(msg);
 					LogData.log.info(msg);
@@ -128,7 +124,6 @@ public class Transfer extends HttpServlet{
 	public boolean setParams(HttpServletRequest request) {
 		boolean status = true;
 		String msg;
-		System.out.println(json.toJSONString());
 		try {
 		userID = Integer.parseInt(request.getAttribute("userid").toString());
 		targetUserID = Integer.parseInt(json.get("targetuser").toString());

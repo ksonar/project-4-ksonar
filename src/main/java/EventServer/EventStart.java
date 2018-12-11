@@ -3,6 +3,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 
 import Logger.LogData;
+import db.Config;
+import db.DBManager;
 /*
  * Start the Events Server and forward to appropriate APIs
  * @author ksonar
@@ -10,8 +12,10 @@ import Logger.LogData;
 public class EventStart {
 	public static int port = 8000;
 	private static String serverName = "events";
+	
 	public static void main(String[] args) throws Exception {
 		LogData.createLogger(serverName);
+		Config.readConfig("config.json");
 		Server server = new Server(port);
 		LogData.log.info(serverName + " server started on port " + port);
 		

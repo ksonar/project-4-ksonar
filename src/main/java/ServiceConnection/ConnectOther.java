@@ -11,6 +11,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import Logger.LogData;
+import db.Config;
 import db.DBManager;
 /*
  * Connect to another server using HttpURLConnection. Supports GET and POST
@@ -22,7 +23,9 @@ public class ConnectOther {
 	private String method;
 	private String body;
 	private HttpURLConnection con;
+	private String hostname;
 	private String exception = "Exception occured while connecting";
+	private String url;
 	
 	public ConnectOther(int port, String path, String method) {
 		this.port = port;
@@ -38,7 +41,15 @@ public class ConnectOther {
 	}
 	//Send request from one service to another
 	public ArrayList<JSONObject> send() {
-		String link = "http://localhost:" + port + path;
+		if(port == 8000) {
+			url = Config.configData.getEventPath();
+		}
+		else {
+			url = Config.configData.getUserPath();
+		}
+		
+		String link = url + ":" + port + path;
+		System.out.println(link);
 		LogData.log.info("LINK : " + link);
 		DBManager db = DBManager.getInstance();
 		ArrayList<JSONObject> data = new ArrayList<>();

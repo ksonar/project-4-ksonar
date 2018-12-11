@@ -4,6 +4,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import Logger.LogData;
+import db.Config;
+import db.DBManager;
 /*
  * Start the Users Server and forward to appropriate APIs
  * @author ksonar

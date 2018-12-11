@@ -14,6 +14,7 @@ import EventServer.EventStart;
 import Logger.LogData;
 import ReadData.Read;
 import ServiceConnection.ConnectOther;
+import db.DBManager;
 /*
  * Front end API to create new event
  * @author ksonar
@@ -21,6 +22,7 @@ import ServiceConnection.ConnectOther;
 public class CreateEvent extends HttpServlet{
 	private ArrayList<JSONObject> processed = new ArrayList<>();
 	private JSONObject json = new JSONObject();
+	private DBManager db = DBManager.getInstance();
 	private int port = EventStart.port;
 	private String path = "/create";
 	private String method = "POST";
@@ -32,7 +34,6 @@ public class CreateEvent extends HttpServlet{
 		
 		json = Read.readAndBuildJSON(request.getReader());
 		LogData.log.info("POST: " + request.getPathInfo());
-		System.out.println(json.toJSONString());
 		ConnectOther service = new ConnectOther(port, path, method, json.toJSONString());
 		processed = service.send();
 		if((processed.size() == 1) && processed.get(0).containsKey("error")) {

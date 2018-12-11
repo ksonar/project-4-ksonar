@@ -14,6 +14,7 @@ import EventServer.EventStart;
 import Logger.LogData;
 import ReadData.Read;
 import ServiceConnection.ConnectOther;
+import db.DBManager;
 /*
  * Front end API to purchase a ticket for an event and given userid
  * @author ksonar
@@ -26,12 +27,12 @@ public class PurchaseTickets extends HttpServlet{
 	private String path = "/purchase/";
 	private String method = "POST";
 	private JSONObject json = new JSONObject();
+	private DBManager db = DBManager.getInstance();
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LogData.log.info("POST: " + request.getPathInfo());
 		json = Read.readAndBuildJSON(request.getReader());
 		setDetails(request);
-		System.out.println(json.toJSONString());
 		PrintWriter out = response.getWriter();
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_OK);

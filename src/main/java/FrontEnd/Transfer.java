@@ -14,6 +14,7 @@ import Logger.LogData;
 import ReadData.Read;
 import ServiceConnection.ConnectOther;
 import UserServer.UserStart;
+import db.DBManager;
 /*
  * Front end API to to transfer tickets to another user
  * @author ksonar
@@ -24,6 +25,7 @@ public class Transfer extends HttpServlet{
 	private int port = UserStart.port;
 	private String path = "/tickets/transfer";
 	private String method = "POST";
+	private DBManager db = DBManager.getInstance();
 	private JSONObject json = new JSONObject();
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {

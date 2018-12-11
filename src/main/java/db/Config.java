@@ -19,15 +19,31 @@ public class Config {
 	private String username;
 	private String password;
 	private String db;
+	private String dbHostname;
+	private String frontPath;
+	private String eventPath;
+	private String userPath;
+	private int frontPort;
+	private int eventPort;
+	private int userPort;
+	
 	public static Config configData;
+	
 	//getters
 	public String getUserName() { return username; }
 	public String getPassword() { return password; }
 	public String getDB() { return db; }
-
+	public String getHostname() { return dbHostname; }
+	public String getFrontPath() { return frontPath; }
+	public String getEventPath() { return eventPath; }
+	public String getUserPath() { return userPath; }
+	public int getFrontPort() { return frontPort; }
+	public int getEventPort() { return eventPort; }
+	public int getUserPort() { return userPort; }
+	
 	private Config() {}
 	public String toString() { 
-		return username + "\t" + password + '\t' + db;
+		return username + "\t" + password + '\t' + db + '\t' + dbHostname;
 	}
 
 	/*
@@ -39,7 +55,6 @@ public class Config {
 		try {
 		BufferedReader f = Files.newBufferedReader(Paths.get(cFile));
 		configData = gson.fromJson(f, Config.class);
-		System.out.println(configData.toString() + '\n');
 		LogData.log.info(configData.toString());
 		}
 		catch (IOException | NullPointerException i) {

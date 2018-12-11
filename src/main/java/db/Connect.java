@@ -12,13 +12,16 @@ public class Connect {
 	private  String username;
 	private  String password;
 	private  String db;
+	private String hostname;
 	private static Connection conn;
 	private static Connect con;
+
 	private Connect() {
 		Config.readConfig(cFile);
 		this.username = Config.configData.getUserName();
 		this.password = Config.configData.getPassword();
 		this.db = Config.configData.getDB();
+		this.hostname = Config.configData.getHostname();
 	}
 	//singleton
 	public static Connect getInstance() {
@@ -37,8 +40,8 @@ public class Connect {
 			System.err.println("Can't find driver");
 			System.exit(1);
 		}
-
-		String urlString ="jdbc:mysql://127.0.0.1:3306/"+db;
+		//jdbc:mysql://127.0.0.1:3306/
+		String urlString = hostname+db;
 
 		String timeZoneSettings = "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 

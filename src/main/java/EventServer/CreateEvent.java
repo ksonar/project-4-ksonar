@@ -66,6 +66,7 @@ public class CreateEvent extends HttpServlet {
 			tickets = json.get("numtickets").toString();
 		}
 		catch(NullPointerException i) {
+			userid = tickets = eventName = null;
 		}
 
 	}
