@@ -35,7 +35,9 @@ public class CreateEvent extends HttpServlet{
 		System.out.println(json.toJSONString());
 		ConnectOther service = new ConnectOther(port, path, method, json.toJSONString());
 		processed = service.send();
-		
+		if((processed.size() == 1) && processed.get(0).containsKey("error")) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
 		out.println(processed.get(0).toString());
 	}
 	

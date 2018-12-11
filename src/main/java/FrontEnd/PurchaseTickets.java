@@ -30,7 +30,8 @@ public class PurchaseTickets extends HttpServlet{
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LogData.log.info("POST: " + request.getPathInfo());
 		json = Read.readAndBuildJSON(request.getReader());
-
+		setDetails(request);
+		System.out.println(json.toJSONString());
 		PrintWriter out = response.getWriter();
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_OK);

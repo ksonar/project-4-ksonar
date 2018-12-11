@@ -46,9 +46,10 @@ public class DBManager {
 	/*
 	 * Update Ticekts table
 	 */
-	public boolean updateTicketsTable(int param1, int param2, String col1, int val1) {
+	public boolean updateTicketsTable(int param1, int param2, String col1, int val1, String update) {
 		boolean status = false;
-		String sqlStmt = String.format("UPDATE tickets SET %s = %d where userID = %s and eventID = %d", col1,val1,param1, param2);
+		String sqlStmt = String.format("UPDATE tickets SET %s = %s %s %d where userID = %s and eventID = %d", col1, col1, update, val1,param1, param2);
+		System.out.println(sqlStmt);
 		LogData.log.info(sqlStmt);
 		try {
 			PreparedStatement stmt = conn.prepareStatement(sqlStmt);
@@ -148,7 +149,7 @@ public class DBManager {
 				String query = "eventName";  
 				LogData.log.info("SUCCESSFUL INSERT");
 				ArrayList<String> cols = new ArrayList<>();
-				cols.add("eventName"); cols.add("userID"); cols.add("avail"); cols.add("purchased");
+				cols.add("eventname"); cols.add("userid"); cols.add("avail"); cols.add("purchased");
 				output = getSelectCertainParamResult(table, query, eventName, true, cols);
 				}
 
@@ -212,6 +213,7 @@ public class DBManager {
 				sqlStmt += queries.get(i) + "=" + Integer.parseInt(params.get(i));
 			}
 		}
+		System.out.println(sqlStmt);
 		LogData.log.info(sqlStmt);
 		data = execute(sqlStmt,table);
 		
@@ -323,6 +325,7 @@ public class DBManager {
 		do {
 			JSONObject temp = new JSONObject();
 			temp.put("eventid", result.getInt("eventID"));
+			temp.put("tickets", result.getInt("tickets"));
 			output.add(temp);
 		} while(result.next());
 		return output;

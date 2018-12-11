@@ -60,7 +60,9 @@ public class PurchaseTickets extends HttpServlet{
 					LogData.log.info("Events table updated");
 					setOther();
 					processed = service.send();
-
+					if(processed.get(0).containsKey("error")) {
+						rollback();
+					}
 				}
 				else {
 					processed = db.buildError(Error.PURCHASE+eventid);
@@ -104,6 +106,22 @@ public class PurchaseTickets extends HttpServlet{
 			}
 		}
 		return flag;
+	}
+	/*
+	 * Rollback update of events table if updation of tickets fail
+	 */
+	public synchronized void rollback() {
+		boolean status = db.updateEventsTable(eventID, "avail", avail, "purchased", purchased);
+		if(status) {
+			String msg = "SUCCESSFUL ROLLBACK!";
+			LogData.log.info(msg);
+		}
+		else {
+			String msg = "UNSUCCESSFUL ROLLBACK!";
+			LogData.log.info(msg);
+			processed = db.buildError(msg);
+		}
+		
 	}
 	
 	
@@ -178,7 +196,7 @@ public class PurchaseTickets extends HttpServlet{
 			LogData.log.info("Input params and eventID validated");
 		}
 		catch (NumberFormatException i) {
-			String msg = "String to integer cast problem for [eventid,userid,tickets] ";
+			String msg = Error.CAST + " [eventid,userid,tickets] ";
 			processed = db.buildError(msg);
 			LogData.log.warning(msg);
 			flag = false;

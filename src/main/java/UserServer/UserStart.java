@@ -23,6 +23,7 @@ public class UserStart {
 		handler.addServlet(UserID.class, "/*");
 		handler.addServlet(CreateUser.class, "/create");
 		handler.addServlet(AddTickets.class, "/tickets/add");
+		handler.addServlet(Transfer.class, "/tickets/transfer");
 
 		server.start();
 		LogData.log.info("Server started");

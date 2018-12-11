@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,6 +33,7 @@ public class UserID extends HttpServlet{
 	private String pathE = "/";
 	private DBManager db = DBManager.getInstance();
 	private ConnectOther service;
+	private String TRANSFER = "/tickets/transfer";
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LogData.log.info("GET: " + request.getPathInfo());
@@ -56,6 +58,26 @@ public class UserID extends HttpServlet{
 		
 		out.println(processed.get(0).toString());
 	}
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		LogData.log.info("POST: " + request.getPathInfo());
+		PrintWriter out = response.getWriter();
+		response.setContentType("application/json");
+		response.setStatus(HttpServletResponse.SC_OK);
+		String[] split = request.getPathInfo().split("/");
+		System.out.println(request.getPathInfo());
+		System.out.println(split[1]);
+		System.out.println("/"+split[1]+TRANSFER);
+		if(split.length == 4) {
+			try {
+					request.setAttribute("userid", Integer.parseInt(split[1]));
+					request.getRequestDispatcher(TRANSFER).forward(request, response);
+			} catch (ServletException e) {
+				LogData.log.warning("Could not forward");
+			}
+		}
+	}
+
 	
 	/*
 	 * Get all event details for the various tickets bought by the user

@@ -54,12 +54,13 @@ public class EventID extends HttpServlet{
 		PrintWriter out = response.getWriter();
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_OK);
+		System.out.println(request.getPathInfo());
 		String[] split = request.getPathInfo().split("/");
 		if(split.length == 4 && split[2].equals("purchase")) {
 
 			eventID = split[1];
 			userID = split[3];
-
+			System.out.println(eventID + userID);
 			try {
 				request.setAttribute("eventid", eventID);
 				request.setAttribute("userid", userID);

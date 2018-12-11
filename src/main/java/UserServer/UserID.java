@@ -25,13 +25,14 @@ public class UserID extends HttpServlet{
 	private String userQuery = "userID";
 	private DBManager db = DBManager.getInstance();
 	private String userID;
-	private String col = "eventID";
+	private String col = "eventID, tickets";
 	private ArrayList<String> queries = new ArrayList<>();
 	private ArrayList<String> params = new ArrayList<>();
 	private ArrayList<String> types = new ArrayList<>();
 	private JSONObject json = new JSONObject();
 	
 	private String TICKETS = "/tickets/add";
+	private String TRANSFER = "/tickets/transfer";
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LogData.log.info("GET: " + request.getPathInfo());
@@ -69,8 +70,14 @@ public class UserID extends HttpServlet{
 		String[] split = request.getPathInfo().split("/");
 		if(split.length == 4) {
 			try {
-				request.setAttribute("userid", Integer.parseInt(split[1]));
-				request.getRequestDispatcher(TICKETS).forward(request, response);
+				if(split[3].equals("add")) {
+					request.setAttribute("userid", Integer.parseInt(split[1]));
+					request.getRequestDispatcher(TICKETS).forward(request, response);
+				}
+				else {
+					request.setAttribute("userid", Integer.parseInt(split[1]));
+					request.getRequestDispatcher(TRANSFER).forward(request, response);
+				}
 			} catch (ServletException e) {
 				LogData.log.warning("Could not forward");
 			}
@@ -82,12 +89,22 @@ public class UserID extends HttpServlet{
 	 * Get all eventIDs for particular userID
 	 */
 	public ArrayList<JSONObject> getAllUserInfo() {
+		ArrayList<JSONObject> tickets= new ArrayList<>();
 		queries.clear(); params.clear(); types.clear();
-		queries.add("userID");
-		params.add(userID); 
+		queries.add("userID"); 
+		params.add(userID);
 		types.add("int"); 
 		ticketsObj = db.getCertaindData(ticketsTable, col, queries, params, types);
-		processed.get(0).put("tickets", ticketsObj);
+		if(!ticketsObj.get(0).containsKey("error")) {
+			for(JSONObject json : ticketsObj) {
+				int count = Integer.parseInt(json.get("tickets").toString());
+				json.remove("tickets");
+					for(int i=0; i < count; i++ ) {
+						tickets.add(json);
+					}
+				} 
+		}
+		processed.get(0).put("tickets", tickets);
 		return processed;
 	}
 	

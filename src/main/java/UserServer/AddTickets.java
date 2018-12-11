@@ -23,6 +23,9 @@ public class AddTickets extends HttpServlet{
 	private int purchased;
 	private JSONObject json = new JSONObject();
 	private DBManager db = DBManager.getInstance();
+	private ArrayList<String> queries = new ArrayList<>();
+	private ArrayList<String> params = new ArrayList<>();
+	private ArrayList<String> types = new ArrayList<>();
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setContentType("application/json");
@@ -30,7 +33,23 @@ public class AddTickets extends HttpServlet{
 		PrintWriter out = response.getWriter();
 		json = Read.readAndBuildJSON(request.getReader());
 		setParams(request);
-		boolean flag = db.insertTicketRowData(table, userID, eventID, purchased);
+		String col = "eventID, tickets";
+
+		queries.add("eventID"); queries.add("userID");
+		params.add(String.valueOf(eventID)); params.add(String.valueOf(userID)); 
+		types.add("int"); types.add("int");
+		processed = db.getCertaindData(table, col, queries, params, types);
+		boolean flag;
+		if(processed.get(0).containsKey("error")) {
+			System.out.println("EMPTY, adding new row");
+			flag = db.insertTicketRowData(table, userID, eventID, purchased);
+		}
+		else {
+			System.out.println("UDATING");
+			flag = db.updateTicketsTable(userID, eventID, table, purchased, "+");
+		}
+		
+
 		if(flag) {
 			String msg = String.format("%d tickets bought by userid %d for eventid %d",purchased,userID,eventID);
 			processed = db.buildSuccess(msg);
